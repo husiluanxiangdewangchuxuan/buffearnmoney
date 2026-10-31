@@ -1,0 +1,9 @@
+import React from 'react';
+import { time } from '@/components/market/marketClient';
+import { scanStatus } from '@/components/market/scan/scanClient';
+export default function ScanSummary({data}) {
+  const state=data.state;
+  if(!state)return <div className="rounded-xl border bg-card p-5 text-sm">尚未建立扫描轮次；这里不填充演示结果。</div>;
+  const total=data.summary.reduce((n,row)=>n+row.count,0),eligible=data.summary.filter(row=>row.outcome==='eligible').reduce((n,row)=>n+row.count,0);
+  return <section className="space-y-3 rounded-xl border bg-card p-5 text-xs leading-6"><div className="flex flex-wrap justify-between gap-2"><strong className="text-sm">{scanStatus[state.status]}</strong><span>{total} 款已留证 · {eligible} 款满足研究门槛</span></div><p className="break-all">轮次 {state.run_id} · 规则 trend_v1</p><p>开始 {time(state.started_at)} · 更新 {time(state.updated_at)}</p><p>{state.message}</p>{state.retry_at&&<p>可再次尝试时间 {time(state.retry_at)}，不保证上游届时恢复。</p>}<p>待研究 {state.pending.length} 款 · 目录行 {state.catalog_rows} · 重复跳过 {state.duplicates} · 无效行 {state.invalid_rows}</p><div className="grid grid-cols-1 gap-2 sm:grid-cols-2">{data.scopes.map((scope,index)=>{const progress=state.pages.find(p=>p.scope===scope.key);return <div className="rounded-lg bg-muted p-3" key={scope.key}><strong>{scope.label}</strong><p>{progress?`目录读取 ${progress.pages} 页；上游目录 ${progress.total??'未提供总数'} 款`:'尚未读取目录'}</p><p>{index<state.scope_index?'本分类目录页已遍历':index===state.scope_index?`断点：第 ${state.next_page} 页`:'等待轮转'} · 已留证 {data.summary.filter(row=>row.group===scope.group).reduce((n,row)=>n+row.count,0)} 款{scope.group==='gun'?'（枪皮各子类合计）':''}</p></div>;})}</div><p className="text-muted-foreground">数量由服务端聚合。目录为动态分页，去重不等于某一时刻的全市场快照；历史不足、失败和未覆盖均不凑数，当前不发布正式推荐。</p></section>;
+}

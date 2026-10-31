@@ -1,0 +1,146 @@
+{
+  "name": "StockItem",
+  "type": "object",
+  "properties": {
+    "owner_id": {
+      "type": "string"
+    },
+    "inventory_item_id": {
+      "type": "string"
+    },
+    "source_key": {
+      "type": "string"
+    },
+    "request_hash": {
+      "type": "string"
+    },
+    "last_operation_id": {
+      "type": "string"
+    },
+    "last_operation_hash": {
+      "type": "string"
+    },
+    "batch_id": {
+      "type": "string"
+    },
+    "goods_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "asset_id": {
+      "type": "string"
+    },
+    "account": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "unit_cost_cents": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "cost_total_cents": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "unknown_quantity": {
+      "type": "integer"
+    },
+    "paintwear": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "paintwear_state": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "not_applicable",
+        "value"
+      ]
+    },
+    "style": {
+      "type": "string"
+    },
+    "paintseed": {
+      "type": "string"
+    },
+    "stattrak": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "yes",
+        "no"
+      ]
+    },
+    "souvenir": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "yes",
+        "no"
+      ]
+    },
+    "trade_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "protected",
+        "tradable"
+      ]
+    },
+    "received_at": {
+      "type": "string"
+    },
+    "unlock_at": {
+      "type": "string"
+    },
+    "status_verified_at": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "owner_id",
+    "name",
+    "quantity",
+    "inventory_item_id",
+    "source_key",
+    "version"
+  ],
+  "rls": {
+    "read": {
+      "data.owner_id": "{{user.id}}"
+    },
+    "create": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import MoneyField from '@/components/funds/MoneyField';
+import { amount, cash, fundError, useFundMutation } from '@/components/funds/fundClient';
+export default function BalanceForm({book,onSaved}) {
+ const initialized=book?.initialized,[platform,setPlatform]=useState(initialized?(book.platform_cents/100).toFixed(2):''),[bank,setBank]=useState(initialized?(book.bank_cents/100).toFixed(2):''),[reason,setReason]=useState(''),[places,setPlaces]=useState({platform:true,bank:true}),[operation]=useState(()=>crypto.randomUUID()),mutation=useFundMutation(book);
+ const p=places.platform?amount(platform):book?.platform_cents??0,b=places.bank?amount(bank):book?.bank_cents??0;
+ async function submit(e){e.preventDefault();try{await mutation.mutateAsync({action:initialized?'adjust':'initialize',operation_id:operation,platform_cents:places.platform?amount(platform):null,bank_cents:places.bank?amount(bank):null,reason});onSaved();}catch{}}
+ return <form className="space-y-4" onSubmit={submit}><p className="text-xs leading-6 text-muted-foreground">填写此刻可用余额，不是历史收入。银行卡只填写愿意用于小店的部分，不绑定银行卡。余额中已包含的旧交易，补录时请勾选期初已包含。</p>{initialized&&<div className="flex flex-wrap gap-4 text-sm">{[['platform','更新平台'],['bank','更新银行卡']].map(([key,label])=><label key={key} className="flex gap-2"><input type="checkbox" checked={places[key]} onChange={e=>setPlaces({...places,[key]:e.target.checked})}/>{label}</label>)}</div>}<MoneyField label="平台可用余额" value={platform} onChange={setPlatform} disabled={!places.platform}/><MoneyField label="银行卡可用于小店的金额" value={bank} onChange={setBank} disabled={!places.bank}/><p className="rounded-lg bg-muted p-3 text-sm">两处合计 {p==null||b==null?'请输入有效金额':cash(p+b)}，系统再减去计划已预留。</p>{initialized&&<label className="block space-y-2 text-xs">调整原因（追加自有资金／余额校准，不计销售或利润）<Input className="min-h-11" value={reason} onChange={e=>setReason(e.target.value)} maxLength={300} required/></label>}{mutation.error&&<p role="alert" className="text-sm text-destructive">{fundError(mutation.error)}</p>}<Button className="min-h-11 w-full" disabled={mutation.isPending||p==null||b==null||(!places.bank&&!places.platform)}>{mutation.isPending?'保存中…':initialized?'保存余额调整并留痕':'以此刻余额启用资金池'}</Button></form>;
+}

@@ -1,0 +1,16 @@
+import React, { useState } from 'react';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { useStockUser } from '@/components/stock/useStockData';
+import { scanCall, scanError } from '@/components/market/scan/scanClient';
+import ScanControls from '@/components/market/scan/ScanControls';
+import ScanSummary from '@/components/market/scan/ScanSummary';
+import ScanEvidence from '@/components/market/scan/ScanEvidence';
+export default function MarketScan(){
+  const client=useQueryClient(),{data:user}=useStockUser(),[error,setError]=useState('');
+  const status=useQuery({queryKey:['market-scan'],queryFn:()=>scanCall({action:'status'}),retry:false,refetchOnWindowFocus:false});
+  const runId=status.data?.state?.run_id;
+  const results=useInfiniteQuery({queryKey:['market-scan-results',runId],enabled:!!runId,initialPageParam:undefined,queryFn:({pageParam})=>scanCall({action:'results',run_id:runId,cursor:pageParam}),getNextPageParam:page=>page.has_more?page.next_cursor:undefined,retry:false,refetchOnWindowFocus:false});
+  const mutation=useMutation({mutationFn:action=>scanCall({action,run_id:runId}),onMutate:()=>setError(''),onSuccess:data=>client.setQueryData(['market-scan'],data),onError:e=>setError(scanError(e)),onSettled:()=>{client.invalidateQueries({queryKey:['market-scan']});client.invalidateQueries({queryKey:['market-scan-results']});client.invalidateQueries({queryKey:['market-status']});}});
+  return <div className="space-y-4"><section className="space-y-3 rounded-xl border bg-card p-5"><h2 className="text-lg font-semibold">M2 · 分批扫描与研究证据</h2><p className="text-xs leading-6 text-muted-foreground">按刀皮、五类枪皮、箱子、音乐盒轮转，跨页去重。仅按现有trend_v1规则留存真实研究，不自动交易；正式推荐发布属于下一批。</p><Button variant="outline" className="min-h-11" disabled={status.isFetching||mutation.isPending} onClick={()=>{status.refetch();if(runId)results.refetch();}}>读取最新进度</Button>{status.data&&<ScanControls state={status.data.state} admin={user?.role==='admin'} busy={mutation.isPending} onAction={action=>mutation.mutate(action)}/>}</section>{status.isPending&&<p role="status" className="text-sm">正在读取扫描进度…</p>}{mutation.isPending&&<p role="status" className="text-xs leading-6">正在处理本批，请保持页面打开；不会连续自动扫描。</p>}{(error||status.error)&&<p role="alert" className="rounded-xl border border-destructive/30 p-4 text-sm text-destructive">{error||scanError(status.error)}</p>}{status.data&&<ScanSummary data={status.data}/>}<section className="space-y-3"><h2 className="font-semibold">本轮留存证据（按采集记录分页）</h2>{results.isPending&&runId&&<p className="text-sm">正在读取证据…</p>}{results.error&&<div role="alert" className="text-sm text-destructive">{scanError(results.error)}<Button variant="outline" className="ml-3" onClick={()=>results.refetch()}>重新读取</Button></div>}{results.data?.pages.map(page=>page.items.map(record=><ScanEvidence key={record.id} record={record}/>))}{results.data&&!results.data.pages[0].items.length&&<p className="rounded-xl border bg-card p-5 text-sm">本轮尚无成功留存的商品；额度不足、限流或失败不会生成模拟研究。</p>}{results.hasNextPage&&<Button className="min-h-11 w-full" variant="outline" disabled={results.isFetchingNextPage} onClick={()=>results.fetchNextPage()}>{results.isFetchingNextPage?'正在加载…':'加载更多留存证据'}</Button>}</section></div>;
+}

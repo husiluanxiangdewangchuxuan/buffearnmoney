@@ -1,0 +1,104 @@
+{
+  "name": "MarketControl",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string"
+    },
+    "lease_until": {
+      "type": "string"
+    },
+    "lease_token": {
+      "type": "string"
+    },
+    "day": {
+      "type": "string"
+    },
+    "calls": {
+      "type": "integer"
+    },
+    "daily_limit": {
+      "type": "integer",
+      "default": 2000
+    },
+    "last_error": {
+      "type": "string"
+    },
+    "last_error_code": {
+      "type": "string"
+    },
+    "last_success": {
+      "type": "string"
+    },
+    "retry_at": {
+      "type": "string"
+    },
+    "retry_basis": {
+      "type": "string"
+    },
+    "rate_limit_streak": {
+      "type": "integer"
+    },
+    "recovery_pending": {
+      "type": "boolean"
+    },
+    "rate_limit_evidence": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "accounting_version": {
+      "type": "string"
+    },
+    "accounting_started_at": {
+      "type": "string"
+    },
+    "legacy_day": {
+      "type": "string"
+    },
+    "legacy_budget_calls": {
+      "type": "integer"
+    },
+    "protocol_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "tool_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "upstream_info": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "key",
+    "daily_limit"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "FundBook",
+  "type": "object",
+  "properties": {
+    "owner_id": {
+      "type": "string"
+    },
+    "initialized": {
+      "type": "boolean",
+      "default": false
+    },
+    "platform_cents": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bank_cents": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "version": {
+      "type": "integer"
+    },
+    "initialized_at": {
+      "type": "string"
+    },
+    "balance_updated_at": {
+      "type": "string"
+    },
+    "plans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "journal": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": [
+    "owner_id",
+    "version",
+    "initialized"
+  ],
+  "rls": {
+    "read": {
+      "data.owner_id": "{{user.id}}"
+    },
+    "create": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    }
+  }
+}

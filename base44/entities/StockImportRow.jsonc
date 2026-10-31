@@ -1,0 +1,57 @@
+{
+  "name": "StockImportRow",
+  "type": "object",
+  "properties": {
+    "owner_id": {
+      "type": "string"
+    },
+    "batch_id": {
+      "type": "string"
+    },
+    "row_number": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "valid",
+        "invalid",
+        "ignored",
+        "committed"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "owner_id",
+    "batch_id",
+    "row_number",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "data.owner_id": "{{user.id}}"
+    },
+    "create": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    }
+  }
+}

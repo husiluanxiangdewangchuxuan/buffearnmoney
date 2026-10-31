@@ -1,0 +1,5 @@
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { usePurchase } from '@/components/funds/purchaseContext';
+import { fundError } from '@/components/funds/fundClient';
+export default function CandidateToggle({data}) {const basket=usePurchase();if(!basket)return null;const selected=basket.items.some(i=>i.goods_id===String(data.goods_id)),invalid=data.stale||!Number.isFinite(Date.parse(data.fetched_at))||Date.now()-Date.parse(data.fetched_at)>3600000||!Number.isSafeInteger(data.item.sell_cents)||data.item.sell_cents<=0;return <div className="mt-3"><Button variant={selected?'default':'outline'} className="min-h-11 w-full" disabled={basket.pending||basket.query.isPending||!!basket.query.error||(!selected&&invalid)} onClick={()=>basket.toggle(data)} aria-pressed={selected}>{basket.pending?'正在保存…':selected?'已加入经营页候选，点击移除':invalid?'报价缺失或过期，暂不能选入':'加入进货候选'}</Button>{basket.error&&<p role="alert" className="mt-2 text-xs text-destructive">{fundError(basket.error)}</p>}</div>;}

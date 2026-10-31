@@ -1,0 +1,5 @@
+import React from 'react';
+export default function MarketRequestUsage({data}){
+  const usage=data.request_usage;
+  return <details className="rounded-xl border bg-card p-4 text-xs leading-6"><summary className="cursor-pointer font-semibold">本次打开详情实际调用了哪些工具？</summary>{usage?<><p>实际发起 {usage.tool_calls} 次工具调用、{usage.protocol_calls} 次协议请求；{usage.tool_calls===0?'本次读取历史缓存，没有调用行情工具。':'失败请求也计入已发起次数。'}</p>{Object.entries(usage.tool_counts).map(([name,count])=><p className="break-all" key={name}>{name} × {count}</p>)}</>:<p>此记录没有本次调用明细，显示未知。</p>}<p className="mt-2 text-muted-foreground">列表、详情和走势切换本身只读已存数据，不直接请求BUFF；前台在线时由60分钟共享队列按需更新基础报价。一次“更新报价”仅调用 buff_get_sell_order 1次；手动更新某窗口走势仅调用 buff_get_price_history 1次，订单按钮仅调用对应订单接口1次。每次实际连接另有3次协议请求，不占工具预算；所有分项共用商品60分钟窗口；前台在线自动更新基础报价，无人使用不启动新采集。</p></details>;
+}

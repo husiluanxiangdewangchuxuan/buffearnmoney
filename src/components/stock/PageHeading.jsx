@@ -1,0 +1,2 @@
+import React from 'react';
+export default function PageHeading({eyebrow,title,description,children}){return <div className="mb-7 flex flex-wrap items-end justify-between gap-5"><div><div className="mb-2 text-[10px] font-semibold tracking-[.2em] text-primary">{eyebrow}</div><h1 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1><p className="mt-2 max-w-xl text-xs leading-6 text-muted-foreground md:text-sm">{description}</p></div><div className="flex gap-2">{children}</div></div>;}

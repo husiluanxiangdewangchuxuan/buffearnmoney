@@ -1,0 +1,7 @@
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { cash, stamp, fundError, useFundMutation } from '@/components/funds/fundClient';
+export default function FundsReceipts({book}) {
+ const mutation=useFundMutation(book);
+ return <section className="rounded-2xl border bg-card p-5"><h2 className="font-semibold">销售回款记录</h2><p className="mt-2 text-xs text-muted-foreground">在「管理资金 → 销售回款」登记。这里只记回款，不自动减库存。</p>{!book.receipts.length&&<p className="mt-4 text-sm">暂无回款记录，未将历史库存估值当现金。</p>}<div className="mt-4 space-y-3">{[...book.receipts].reverse().map(r=><article key={r.id} className="rounded-xl border p-4 text-sm"><div className="flex flex-wrap justify-between gap-2"><strong className="break-all">{r.reference}</strong><span>{{pending:'待结算，未计入预算',available:'平台已可用',included:'已包含期初，不重复加钱'}[r.status]}</span></div><p className="mt-2 text-xs leading-6">实际成交 {cash(r.gross_cents)} − 手续费 {cash(r.fee_cents)} = 净回款 {cash(r.net_cents)}</p><p className="text-xs text-muted-foreground">登记 {stamp(r.created_at)}</p>{r.status==='pending'&&<Button className="mt-3 min-h-11" disabled={mutation.isPending} onClick={()=>mutation.mutate({action:'settle',operation_id:crypto.randomUUID(),receipt_id:r.id})}>确认平台已可用，计入余额</Button>}</article>)}</div>{mutation.error&&<p role="alert" className="mt-3 text-sm text-destructive">{fundError(mutation.error)}</p>}</section>;
+}

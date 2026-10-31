@@ -1,0 +1,13 @@
+import React, { useEffect, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { marketCall, marketError } from '@/components/market/marketClient';
+import MarketUsageStats from '@/components/market/MarketUsageStats';
+export default function MarketBudgetSettings(){
+  const client=useQueryClient(),[budget,setBudget]=useState(''),[message,setMessage]=useState('');
+  const query=useQuery({queryKey:['market-usage'],queryFn:()=>marketCall({action:'usage'}),retry:false,refetchOnWindowFocus:false});
+  useEffect(()=>{if(query.data)setBudget(String(query.data.daily_limit));},[query.data?.daily_limit]);
+  const save=useMutation({mutationFn:()=>marketCall({action:'configure',daily_limit:Number(budget)}),onMutate:()=>setMessage(''),onSuccess:data=>{client.setQueryData(['market-usage'],data);client.invalidateQueries({queryKey:['market-status']});setMessage('预算已保存，下一次采集生效；已有计数和上游限流等待未清除。');}});
+  return <section className="mt-5 space-y-4 rounded-2xl border bg-card p-5 sm:p-6"><h2 className="font-semibold">本应用每日采集预算（仅管理员可调整）</h2><p className="text-xs leading-6 text-muted-foreground">按北京时间每天零点计数；只计实际发起的MCP工具调用，不把协议握手计入预算，也不等同于BUFF任何单接口额度。默认每日2000次，保存后刷新页面或重新登录仍保留已保存预算，不会恢复为200次；调整预算不会解除BUFF自身的限流。</p>{query.isPending&&<p role="status" className="text-sm">正在读取预算与统计…</p>}{query.error&&<p role="alert" className="text-sm text-destructive">{marketError(query.error)}</p>}{query.data&&<><form className="flex flex-wrap items-end gap-3" onSubmit={event=>{event.preventDefault();save.mutate();}}><label className="min-w-0 flex-1 text-xs">每日工具调用预算（次，0表示暂停实时采集）<Input className="mt-2" type="number" min="0" step="1" required value={budget} disabled={save.isPending} onChange={event=>setBudget(event.target.value)}/></label><Button className="min-h-11" disabled={save.isPending||!budget.trim()||!Number.isSafeInteger(Number(budget))||Number(budget)<0}>{save.isPending?'保存中…':'保存预算'}</Button></form>{save.error&&<p role="alert" className="text-sm text-destructive">{marketError(save.error)}</p>}{message&&<p role="status" className="text-xs text-primary">{message}</p>}<MarketUsageStats data={query.data}/></>}<Button variant="outline" className="min-h-11" disabled={query.isFetching||save.isPending} onClick={()=>query.refetch()}>读取最新统计（不请求BUFF）</Button><p className="text-xs leading-6 text-muted-foreground">本应用预算不足只暂停实时采集，已有详情、订单与走势仍按上次成功时间展示；BUFF返回限流时单独显示，并保留退避等待，调高应用预算不会解除BUFF限流。</p></section>;
+}

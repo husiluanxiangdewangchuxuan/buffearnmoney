@@ -1,0 +1,49 @@
+{
+  "name": "MarketCache",
+  "type": "object",
+  "properties": {
+    "cache_key": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "goods_id": {
+      "type": "string"
+    },
+    "fetched_at": {
+      "type": "string"
+    },
+    "batch_id": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "cache_key",
+    "kind",
+    "fetched_at",
+    "payload"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    }
+  }
+}

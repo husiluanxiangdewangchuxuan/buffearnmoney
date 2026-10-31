@@ -1,0 +1,55 @@
+{
+  "name": "StockAudit",
+  "type": "object",
+  "properties": {
+    "owner_id": {
+      "type": "string"
+    },
+    "operation_id": {
+      "type": "string"
+    },
+    "item_id": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "before": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "after": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "actor_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "owner_id",
+    "operation_id",
+    "action",
+    "actor_id"
+  ],
+  "rls": {
+    "read": {
+      "data.owner_id": "{{user.id}}"
+    },
+    "create": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    }
+  }
+}

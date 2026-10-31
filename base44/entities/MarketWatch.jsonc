@@ -1,0 +1,57 @@
+{
+  "name": "MarketWatch",
+  "type": "object",
+  "properties": {
+    "owner_id": {
+      "type": "string"
+    },
+    "goods_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "variant_scope": {
+      "type": "string"
+    },
+    "monitoring": {
+      "type": "boolean",
+      "default": true
+    },
+    "watch_price_cents": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "watch_quote_at": {
+      "type": "string"
+    },
+    "watched_at": {
+      "type": "string"
+    },
+    "quote_snapshot": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "owner_id",
+    "goods_id"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "data.owner_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

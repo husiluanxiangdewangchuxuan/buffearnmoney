@@ -1,0 +1,8 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { CircleHelp, ArrowUpRight, ClipboardCheck } from 'lucide-react';
+import PageHeading from '@/components/stock/PageHeading';
+import StockSummary from '@/components/stock/StockSummary';
+import FundsWorkspace from '@/components/funds/FundsWorkspace';
+import { Button } from '@/components/ui/button';
+export default function Business(){return <><PageHeading eyebrow="BUSINESS / 经营核对" title="把库存与现金分开看" description="先看今天还能拿多少钱进货，再单独核对库存成本；库存估值和待结算回款不计入可动用现金。"/><FundsWorkspace/><StockSummary/><section className="mt-7 rounded-2xl border bg-card p-6 md:p-8"><div className="flex items-center gap-3"><ClipboardCheck className="text-primary" size={22}/><h2 className="font-semibold">当前经营口径</h2></div><div className="mt-6 grid gap-4 md:grid-cols-2">{[['库存成本','已知单件落地成本 × 库存数量；未知成本件数单独列示。'],['期初库存','导入只建立持仓，不伪造过去的采购支出。'],['可交易状态','由用户导入或手工核实，不是平台自动同步结果。'],['现金与利润','资金池按手填期初、实际回款及付款记账；追加、充值与校准不计销售或利润。销售减库、采购自动入库与完整利润核算尚未接入。']].map(([title,text])=><div key={title} className="rounded-xl border p-5"><h3 className="text-sm font-medium">{title}</h3><p className="mt-2 text-xs leading-6 text-muted-foreground">{text}</p></div>)}</div><Button asChild variant="outline" className="mt-6"><Link to="/inventory">核对库存及成本<ArrowUpRight size={14} className="ml-2"/></Link></Button></section><div className="mt-5 flex items-start gap-2 text-xs leading-6 text-muted-foreground"><CircleHelp size={15} className="mt-1 shrink-0"/>资金池为手工记账，不会真实转账或自动交易；销售库存联动、采购自动入库与完整财务报表尚未交付。</div></>;}

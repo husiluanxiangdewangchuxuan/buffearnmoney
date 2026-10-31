@@ -1,0 +1,18 @@
+import React, { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import StockItemCard from '@/components/stock/StockItemCard';
+import StockBatchStatus from '@/components/stock/StockBatchStatus';
+import StockMarketResearch from '@/components/stock/StockMarketResearch';
+import { callStock, errorText } from '@/components/stock/stockClient';
+import { time, marketCall } from '@/components/market/marketClient';
+export default function InventoryItems({items,onEdit}) {
+  const [selected,setSelected]=useState([]),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),cache=useQueryClient();
+  const ids=[...new Set(items.map(x=>x.goods_id).filter(Boolean))],keys=ids.flatMap(id=>[`detail:${id}`,`inventory-research:${id}`]);
+  const data=useQuery({queryKey:['inventory-market',ids],queryFn:async()=>{const [quotes,reports]=await Promise.all([marketCall({action:'read_batch',goods_ids:ids}),base44.entities.MarketCache.filter({cache_key:{$in:ids.map(id=>`inventory-research:${id}`)}},{limit:Math.min(ids.length,500),sort:'-fetched_at'})]);return {items:[...quotes.items.map(payload=>({cache_key:`detail:${payload.goods_id}`,payload})),...reports.items]};},enabled:!!keys.length,staleTime:60000});
+  const status=useQuery({queryKey:['inventory-tracking'],queryFn:()=>callStock('inventoryResearch',{action:'status'}),staleTime:60000});
+  const records=data.data?.items||[],find=(kind,id)=>records.find(x=>x.cache_key===`${kind}:${id}`)?.payload;
+  async function refresh(){setBusy(true);setMessage('');try{const chosen=selected.length?items.filter(x=>selected.includes(x.id)):items,goods=[...new Set(chosen.map(x=>x.goods_id).filter(Boolean))].slice(0,5);const result=await callStock('inventoryResearch',{action:'refresh',goods_ids:goods});setMessage(result.message); }catch(e){setMessage(errorText(e));}finally{await Promise.all([cache.invalidateQueries({queryKey:['inventory-market']}),cache.invalidateQueries({queryKey:['inventory-tracking']})]);setBusy(false);}}
+  return <><section className="mb-4 rounded-xl border bg-card p-4 text-xs leading-6"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="font-medium">库存行情 · 前台在线每60分钟更新</h2><Button variant="outline" disabled={busy||status.data?.running} onClick={refresh}>{busy?'采集与研究中…':'刷新所选／前5个商品'}</Button></div><p className="mt-2 text-muted-foreground">按BUFF商品ID去重；本次按钮仅更新基础报价，60分钟内复用成功报价，无人使用停止自动采集，已有走势与AI报告继续保留。{status.data?.schedule}</p><p className="text-muted-foreground">最近完整成功：{time(status.data?.last_success)}。图片为BUFF商品图，不是单件实拍；AI不会自动交易。</p>{(message||status.data?.last_error)&&<p role="status" className="mt-2 text-destructive">{message||status.data.last_error}</p>}{status.error&&<p role="alert">追踪状态读取失败：{errorText(status.error)}</p>}{data.isPending&&<p>正在读取已有行情…</p>}{data.error&&<p role="alert">行情加载失败：{errorText(data.error)} <button className="underline" onClick={()=>data.refetch()}>重试</button></p>}</section><StockBatchStatus items={items} selected={selected} setSelected={setSelected}/><div className="grid gap-3 xl:grid-cols-2">{items.map(item=><div key={item.id} className="min-w-0 overflow-hidden rounded-xl border bg-card"><label className="flex min-h-10 items-center gap-2 px-4 text-xs"><input type="checkbox" checked={selected.includes(item.id)} onChange={e=>setSelected(s=>e.target.checked?s.length<50?[...s,item.id]:s:s.filter(id=>id!==item.id))}/>选择此库存</label><StockItemCard item={item} onEdit={onEdit} image={find('detail',item.goods_id)?.item?.image}/><StockMarketResearch item={item} detail={find('detail',item.goods_id)} report={find('inventory-research',item.goods_id)}/></div>)}</div></>;
+}

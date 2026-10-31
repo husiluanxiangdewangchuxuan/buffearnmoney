@@ -1,0 +1,36 @@
+{
+  "name": "PurchaseCandidate",
+  "type": "object",
+  "properties": {
+    "owner_id": {
+      "type": "string"
+    },
+    "goods_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "unit_cents": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999,
+      "default": 1
+    },
+    "quote_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "owner_id",
+    "goods_id",
+    "name",
+    "unit_cents",
+    "quantity",
+    "quote_at"
+  ]
+}

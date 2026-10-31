@@ -1,0 +1,115 @@
+{
+  "name": "MarketRequestLog",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "finished_at": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "goods_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "decision": {
+      "type": "string"
+    },
+    "sent_buff": {
+      "type": "boolean"
+    },
+    "tool_calls": {
+      "type": "integer"
+    },
+    "protocol_calls": {
+      "type": "integer"
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "retry_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "retry_basis": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "required_calls": {
+      "type": "integer"
+    },
+    "used_calls": {
+      "type": "integer"
+    },
+    "remaining_budget": {
+      "type": "integer"
+    },
+    "quote_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "quote_cents": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "request_id",
+    "started_at",
+    "source",
+    "action",
+    "decision",
+    "sent_buff"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    }
+  }
+}

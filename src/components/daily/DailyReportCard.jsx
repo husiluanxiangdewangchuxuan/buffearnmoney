@@ -1,0 +1,5 @@
+import React from 'react';
+import { price, time, change } from '@/components/market/marketClient';
+export default function DailyReportCard({report}) {
+  return <section className="overflow-hidden rounded-xl border bg-card"><div className="border-b p-4"><h2 className="font-semibold">{report.archived?'历史日报':'最近一份日报'} · {report.period}</h2><p className="mt-1 text-xs text-muted-foreground">生成于 {time(report.generated_at)}（北京时间）</p><p className="mt-1 text-xs text-muted-foreground">{report.scope_note}</p></div><div className="divide-y">{report.rows.map(row=><div key={row.goods_id} className="space-y-1 p-4 text-xs"><strong className="break-words">{row.name} · #{row.goods_id}</strong><p>在售 {row.sell_cents==null?'暂无报价':price(row.sell_cents)} · 报价截至 {time(row.quote_at)}</p><p>7日 {change(row.r7)} · 30日 {change(row.r30)}</p><p className="text-muted-foreground">走势采集：7天 {time(row.history_times?.[7])}；30天 {time(row.history_times?.[30])}</p></div>)}{!report.rows.length&&<p className="p-4 text-xs text-muted-foreground">这份日报生成时尚无已绑定的库存、自选或采购候选。</p>}</div></section>;
+}

@@ -1,0 +1,79 @@
+{
+  "name": "StockImport",
+  "type": "object",
+  "properties": {
+    "owner_id": {
+      "type": "string"
+    },
+    "fingerprint": {
+      "type": "string"
+    },
+    "filename": {
+      "type": "string"
+    },
+    "file_uri": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "preview",
+        "applying",
+        "committed",
+        "recovery_required"
+      ]
+    },
+    "row_count": {
+      "type": "integer"
+    },
+    "valid_count": {
+      "type": "integer"
+    },
+    "invalid_count": {
+      "type": "integer"
+    },
+    "units": {
+      "type": "integer"
+    },
+    "known_cost_cents": {
+      "type": "integer"
+    },
+    "unknown_units": {
+      "type": "integer"
+    },
+    "committed_count": {
+      "type": "integer"
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "owner_id",
+    "fingerprint",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "data.owner_id": "{{user.id}}"
+    },
+    "create": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "collaborator_role": "editor"
+      }
+    }
+  }
+}

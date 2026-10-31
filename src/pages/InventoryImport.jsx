@@ -1,0 +1,8 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import PageHeading from '@/components/stock/PageHeading';
+import ImportUpload from '@/components/stock/ImportUpload';
+import ImportMapping from '@/components/stock/ImportMapping';
+import ImportPreview from '@/components/stock/ImportPreview';
+export default function InventoryImport(){const [source,setSource]=useState(null),[batch,setBatch]=useState(null),[duplicate,setDuplicate]=useState(false);function reset(){setSource(null);setBatch(null);setDuplicate(false);}return <><Link to="/inventory" className="mb-5 inline-flex items-center gap-2 text-xs text-muted-foreground"><ArrowLeft size={14}/>返回库存</Link><PageHeading eyebrow="INVENTORY IMPORT / 真实库存导入" title="建立第一份可信库存" description="文件私密保存。预览与确认分开，错误行不会静默入库。"/><div className="mb-6 grid grid-cols-3 gap-2">{['01 上传文件','02 核对映射','03 预览并确认'].map((step,i)=><div key={step} className={`rounded-lg border px-3 py-3 text-center text-xs ${i===(batch?2:source?1:0)?'border-primary/30 bg-primary/10 text-primary':'bg-card text-muted-foreground'}`}>{step}</div>)}</div>{batch?<ImportPreview batch={batch} duplicate={duplicate} onReset={reset}/>:source?<ImportMapping source={source} onReset={reset} onPreview={(b,d)=>{setBatch(b);setDuplicate(d);}}/>:<ImportUpload onLoaded={setSource}/>}<p className="mt-5 flex items-start gap-2 text-[11px] leading-6 text-muted-foreground"><ShieldCheck size={15} className="mt-1 shrink-0"/>本应用独立建档，不读取旧 Agent 私有资源。个人库存、成本和导入记录按账号隔离；未验证的行情不参与匹配。</p></>;}

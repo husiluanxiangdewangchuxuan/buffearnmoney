@@ -1,0 +1,10 @@
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import QuoteChart from '@/components/market/QuoteChart';
+import QuoteRefreshControl from '@/components/market/QuoteRefreshControl';
+import { price, time, change } from '@/components/market/marketClient';
+export default function StockMarketResearch({item,detail,report}) {
+  if(!detail||detail.empty)return <div className="space-y-2 border-t px-4 py-3 text-xs text-muted-foreground"><p>暂无报价。没有已有报价时，不生成走势或建议。</p><QuoteRefreshControl data={detail} goodsId={item.goods_id} source="manual_inventory"/></div>;
+  const r=detail.research||{},stale=Date.now()-Date.parse(detail.fetched_at)>3600000,validReport=report?.evidence_at===detail.fetched_at;
+  return <div className="border-t p-4 text-xs"><div className="grid gap-2 sm:grid-cols-3"><span>在售参考 {price(detail.item?.sell_cents)}</span><span>7日 {change(r.r7)}</span><span>30日 {change(r.r30)}</span></div><p className="mt-2 text-muted-foreground">报价截至 {time(detail.fetched_at)}{stale?' · 历史报价，继续保留供查看':''}</p><div className="my-2"><QuoteRefreshControl data={detail} goodsId={item.goods_id} source="manual_inventory"/></div>{item.unit_cost_cents===0?<p className="mt-2 text-muted-foreground">成本为0，暂不据此判断盈利，请核对是否为真实零成本。</p>:item.unit_cost_cents==null?<p className="mt-2 text-muted-foreground">成本待补充，无法判断盈亏。</p>:<p className="mt-2 text-muted-foreground">单件成本 {price(item.unit_cost_cents)}；尚未扣除出售手续费，报价差不等于净利润。</p>}{item.trade_status!=='tradable'&&<p className="mt-2 text-muted-foreground">未确认可交易，退出建议仅供解锁后复核。</p>}<details className="mt-3"><summary className="cursor-pointer font-medium">查看7／30日走势与AI持有／退出研究</summary><div className="mt-3"><QuoteChart series={detail.series||[]} updatedAt={detail.history_times}/></div>{validReport?<div className="mt-3 space-y-2 leading-6">{stale&&<p className="text-destructive">以下为过期证据下的旧报告，不作为当前交易依据。</p>}<ReactMarkdown>{report.text}</ReactMarkdown></div>:<p className="mt-3 text-muted-foreground">{report?'旧报告与当前行情不匹配，等待Agent重新研究。':'Agent尚未完成此商品研究，不以规则文案冒充AI结果。'}</p>}<p className="mt-3 leading-6 text-muted-foreground">商品级报价不是这件饰品的成交价，不包含磨损／模板溢价或手续费；无法保证未来退出日期或收益。</p></details></div>;
+}

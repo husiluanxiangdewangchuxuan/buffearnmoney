@@ -1,0 +1,10 @@
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import MoneyField from '@/components/funds/MoneyField';
+import { amount, cash, fundError, useFundMutation } from '@/components/funds/fundClient';
+export default function ReceiptForm({book,onSaved}) {
+ const [reference,setReference]=useState(''),[gross,setGross]=useState(''),[fee,setFee]=useState('0.00'),[net,setNet]=useState(''),[available,setAvailable]=useState(false),[included,setIncluded]=useState(false),[operation]=useState(()=>crypto.randomUUID()),mutation=useFundMutation(book);
+ async function submit(e){e.preventDefault();try{await mutation.mutateAsync({action:'receipt',operation_id:operation,reference,gross_cents:amount(gross),fee_cents:amount(fee),net_cents:amount(net),available,included});onSaved();}catch{}}
+ return <form onSubmit={submit} className="space-y-4"><p className="text-xs leading-6 text-muted-foreground">这里只登记销售回款和手续费，不自动减少库存或计算利润；销售库存联动尚未接入。待结算回款不进入进货预算。</p><label className="block space-y-2 text-xs">成交单号（同一单只登记一次）<Input className="min-h-11" maxLength={80} required value={reference} onChange={e=>setReference(e.target.value)}/></label><MoneyField label="实际成交额" value={gross} onChange={setGross}/><MoneyField label="实际手续费" value={fee} onChange={setFee}/><MoneyField label="实际净回款" value={net} onChange={setNet}/><p className="text-xs text-muted-foreground">成交额减手续费：{amount(gross)!=null&&amount(fee)!=null?cash(amount(gross)-amount(fee)):'待填写'}，必须与净回款一致。</p><label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={available} onChange={e=>setAvailable(e.target.checked)}/>平台已可用，立即计入平台余额</label><label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={included} onChange={e=>setIncluded(e.target.checked)}/>这笔收支已包含在期初余额，只补记录，不再加钱</label>{mutation.error&&<p role="alert" className="text-sm text-destructive">{fundError(mutation.error)}</p>}<Button className="min-h-11 w-full" disabled={mutation.isPending}>{mutation.isPending?'保存中…':'登记实际回款'}</Button></form>;
+}
